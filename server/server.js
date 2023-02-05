@@ -4,6 +4,8 @@ const {v4: uuidv4} = require("uuid");
 require("colors");
 const cors = require("cors");
 const pool = require("./db.js");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const app = express();
 const PORT = process.env.PORT || 8000;
 
@@ -20,6 +22,7 @@ app.get("/todos/:userEmail", async (req, res) => {
         res.json(todos.rows);
     } catch (err) {
         console.log(err);
+        res.status(err.status).send({'detail': err.detail});
     }
 });
 
@@ -34,7 +37,7 @@ app.post('/todos', async (req, res) => {
         res.status(201).json(newToDo);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        res.status(err.status).send({'detail': err.detail});
     }
 });
 
@@ -44,7 +47,7 @@ app.put('/todos/:id', async (req, res) => {
         const {id} = req.params;
         const {user_email, title, progress, date} = req.body;
         const updateToDo = await pool.query("UPDATE todos SET user_email=$1, title=$2, progress=$3, date=$4 WHERE id = $5;", [
-           user_email, title, progress, date, id
+            user_email, title, progress, date, id
         ]);
         res.status(203).json(updateToDo);
     } catch (err) {
@@ -60,11 +63,47 @@ app.delete('/todos/:id', async (req, res) => {
         res.status(200).json(deleteToDo);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        res.status(err.status).send({'detail': err.detail});
+    }
+});
+//login
+app.post('/login', async (req, res) => {
+    const {email, password} = req.body;
+
+    try {
+        let user = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        if (!user.rows.length) {
+            return res.status(404).json({"message": "User not found!"})
+        }
+        const success = await bcrypt.compare(password, user.rows[0].hashed_password)
+        const token = jwt.sign({email}, 'secret', {expiresIn: '1hr'})
+        if (success) {
+            return res.status(200).json({'email': user.rows[0].email, token})
+        } else {
+            res.status(400).json({detail: 'Login Failed'})
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(err.status).send({'detail': err.detail});
+    }
+});
+//sign-up
+app.post('/sign-up', async (req, res) => {
+    const {email, password} = req.body;
+    const salt = bcrypt.genSaltSync(10)
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    try {
+        let user = await pool.query(`INSERT INTO users (email,hashed_password) VALUES ($1,$2)`, [email, hashedPassword])
+        const token = jwt.sign({email}, 'secret', {expiresIn: '1hr'})
+        res.status(200).json({email, token})
+    } catch (err) {
+        console.error(err);
+        if (err)
+            res.json({'detail': err.detail});
     }
 });
 
 app.listen(PORT, () => {
     console.clear();
-    console.log(`Server running on `.green+`http//${process.env.DB_HOST}:${process.env.PORT}`.blue);
+    console.log(`Server running on `.green + `http//${process.env.DB_HOST}:${process.env.PORT}`.blue);
 });

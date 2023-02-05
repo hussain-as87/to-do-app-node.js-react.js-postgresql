@@ -1,4 +1,5 @@
 import React, {FormEvent, useState} from "react";
+import {useCookies} from "react-cookie";
 
 interface Props {
     mode: string,
@@ -14,9 +15,10 @@ interface Props {
 }
 
 const Model: React.FC<Props> = ({mode, setShowModel, task, getData}) => {
+    const [cookies, setCookies, removeCookies] = useCookies()
     const editMode = mode === "edit" ? true : false;
     const [data, setData] = useState({
-        user_email: editMode && task ? task.user_email : 'adda8mad@gmail.com',
+        user_email: editMode && task ? task.user_email : cookies.Email,
         title: editMode && task ? task.title : "",
         progress: editMode && task ? task.progress : 50,
         date: editMode && task ? task.date : new Date().toDateString()
