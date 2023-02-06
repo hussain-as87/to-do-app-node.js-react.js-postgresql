@@ -21,10 +21,8 @@ const App = () => {
     }
   };
   useEffect(() => {
-    if (authToken) {
       getData();
-    }
-  }, [tasks]);
+  }, [authToken]);
   //sort by date
   const sortedTasks = tasks?.sort(
     (a: { date: string }, b: { date: string }) =>

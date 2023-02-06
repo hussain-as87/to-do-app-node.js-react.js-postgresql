@@ -37,8 +37,8 @@ const Auth = () => {
                 setCookies('AuthToken', data.token)
             }
 
-            window.location.reload();
-        } catch (error) {
+/*             window.location.reload();
+ */        } catch (error) {
             console.error(error);
         }
     }
