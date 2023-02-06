@@ -52,7 +52,7 @@ app.put('/todos/:id', async (req, res) => {
         res.status(203).json(updateToDo);
     } catch (err) {
         console.error(err);
-        res.status(500).send('Server error');
+        res.status(err.status).send({'detail': err.detail});
     }
 });
 //delete a specific todo by id
@@ -99,7 +99,7 @@ app.post('/sign-up', async (req, res) => {
     } catch (err) {
         console.error(err);
         if (err)
-            res.json({'detail': err.detail});
+            res.status(err.status).send({'detail': err.detail});
     }
 });
 

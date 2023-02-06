@@ -4,15 +4,18 @@ import {useCookies} from "react-cookie";
 
 interface Props {
     listName: any,
-    getData?:any
+    getData?: any
 }
 
 
-const ListHeader: React.FC<Props> = ({listName,getData}) => {
+const ListHeader: React.FC<Props> = ({listName, getData}) => {
     const [cookies, setCookies, removeCookies] = useCookies()
     const [showModel, setShowModel] = useState(false);
     const signOut = () => {
         console.log('sign out')
+        removeCookies('Email')
+        removeCookies('AuthToken')
+        window.location.reload();
     }
     return <div className="list-header"><h1>{listName}</h1>
         <div className="button-container">

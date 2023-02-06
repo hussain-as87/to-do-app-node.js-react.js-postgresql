@@ -31,13 +31,13 @@ const Auth = () => {
             if (data.detail) {
                 setError(data.detail);
             } else {
-                setCookies('Email', data.email)
+                removeCookies('Email')
+                removeCookies('AuthToken')
+                setCookies('Email', String(data.email))
                 setCookies('AuthToken', data.token)
             }
 
-/*
             window.location.reload();
-*/
         } catch (error) {
             console.error(error);
         }

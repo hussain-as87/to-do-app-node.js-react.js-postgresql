@@ -3,7 +3,6 @@ import ProgressBar from "./ProgressBar";
 import TickIcon from "./TickIcon";
 import Model from "./Model";
 
-
 interface Props {
     task: {
         id: string,
@@ -36,7 +35,7 @@ const ListItem: React.FC<Props> = ({task, getData, key}) => {
             <div className="info-container">
                 <TickIcon/>
                 <p className="task-title">{task.title}</p>
-                <ProgressBar/>
+                <ProgressBar progress={task.progress}/>
             </div>
             <div className="button-container">
                 <button className="edit" onClick={() => setShowModel(true)}>Edit</button>
